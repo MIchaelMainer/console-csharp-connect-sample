@@ -2,6 +2,7 @@
 //See LICENSE in the project root for license information.
 extern alias GraphBetaModels;
 using Microsoft.Graph;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -55,31 +56,25 @@ namespace console_csharp_connect_sample
                         {
                             // Get the trending response.
                             var content = response.Content.ReadAsStringAsync().Result;
-                            JObject trendingResponseBody = JObject.Parse(content);
 
-                            // Get the array of trending objects from the 'value' key.
-                            JToken arrayOfTrendingObjects = trendingResponseBody.GetValue("value");
+                            // Deserialize the trending response into a collection page.
+                            // This is failing. It'd be ideal to get this working then we don't have to do any JSON manipulation.
+                            // Getting your trending information failed with the following message: Cannot populate JSON object onto type 'Microsoft.Graph.OfficeGraphInsightsTrendingCollectionPage'. Path '@odata.context', line 2, position 20.
+                            GraphBetaModels.Microsoft
+                                           .Graph
+                                           .OfficeGraphInsightsTrendingCollectionPage trendings = graphClient.HttpProvider
+                                                                                                            .Serializer
+                                                                                                            .DeserializeObject<GraphBetaModels.Microsoft
+                                                                                                                                              .Graph
+                                                                                                                                              .OfficeGraphInsightsTrendingCollectionPage>(content);
 
-                            List<GraphBetaModels.Microsoft.Graph.Trending> trendingList = new List<GraphBetaModels.Microsoft.Graph.Trending>();
-
-                            // Deserialize each trending object.
-                            foreach (JToken t in arrayOfTrendingObjects.Children())
-                            {
-                                GraphBetaModels.Microsoft.Graph.Trending trendingObj = graphClient.HttpProvider
-                                                                                                  .Serializer
-                                                                                                  .DeserializeObject<GraphBetaModels.Microsoft.Graph.Trending>(t.ToString());
-                                trendingList.Add(trendingObj);
-                            }
-
-                            // Access the contents of the trending objects from the model.
-                            foreach (GraphBetaModels.Microsoft.Graph.Trending trendingItem in trendingList)
+                            foreach (GraphBetaModels.Microsoft.Graph.Trending trendingItem in trendings)
                             {
                                 Console.WriteLine($"Trending id: {trendingItem.Id}");
                                 Console.WriteLine($"Trending resource title: {trendingItem.ResourceVisualization.Title}");
                                 Console.WriteLine($"Trending resource preview text: {trendingItem.ResourceVisualization.PreviewText}");
                                 Console.WriteLine($"Trending resource web url: {trendingItem.ResourceReference.WebUrl}\n");
                             }
-
                         }
                         Console.WriteLine("\n\nPress any key to continue.");
                         Console.ReadKey();
