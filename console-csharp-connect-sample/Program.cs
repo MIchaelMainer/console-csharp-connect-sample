@@ -62,11 +62,11 @@ namespace console_csharp_connect_sample
                             // Getting your trending information failed with the following message: Cannot populate JSON object onto type 'Microsoft.Graph.OfficeGraphInsightsTrendingCollectionPage'. Path '@odata.context', line 2, position 20.
                             GraphBetaModels.Microsoft
                                            .Graph
-                                           .OfficeGraphInsightsTrendingCollectionPage trendings = graphClient.HttpProvider
+                                           .GraphServiceTrendingCollectionPage trendings = graphClient.HttpProvider
                                                                                                             .Serializer
                                                                                                             .DeserializeObject<GraphBetaModels.Microsoft
                                                                                                                                               .Graph
-                                                                                                                                              .OfficeGraphInsightsTrendingCollectionPage>(content);
+                                                                                                                                              .GraphServiceTrendingCollectionPage>(content);
 
                             foreach (GraphBetaModels.Microsoft.Graph.Trending trendingItem in trendings)
                             {
