@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets 
+    xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+    <CodeSnippet Format="1.0.0">
+        <Header>
+            <Title>Add HttpRequestMessage</Title>
+            <Description>Create the HttpRequestMessage with the URL for the Trending API.</Description>
+            <Shortcut>_1_AddRequestMessage</Shortcut>
+        </Header>
+        <Snippet>
+            <Code Language="CSharp">
+                <![CDATA[// 1. Create request message with the URL for the trending API.
+string requestUrl = "https://graph.microsoft.com/beta/me/insights/trending";
+HttpRequestMessage hrm = new HttpRequestMessage(HttpMethod.Get, requestUrl);]]>
+            </Code>
+        </Snippet>
+    </CodeSnippet>
+    <CodeSnippet Format="1.0.0">
+        <Header>
+            <Title>Authenticate the request</Title>
+            <Description>Add the authentication token to our request.</Description>
+            <Shortcut>_2_AuthenticateRequest</Shortcut>
+        </Header>
+        <Snippet>
+            <Code Language="CSharp">
+                <![CDATA[// 2. Authenticate (add access token) our HttpRequestMessage
+graphClient.AuthenticationProvider.AuthenticateRequestAsync(hrm).GetAwaiter().GetResult();]]>
+            </Code>
+        </Snippet>
+    </CodeSnippet>
+    <CodeSnippet Format="1.0.0">
+        <Header>
+            <Title>Send the request to the Trending API</Title>
+            <Description>Send the request to the Trending API</Description>
+            <Shortcut>_3_SendRequest</Shortcut>
+        </Header>
+        <Snippet>
+            <Code Language="CSharp">
+                <![CDATA[// 3. Send the request and get the response.
+HttpResponseMessage response = graphClient.HttpProvider.SendAsync(hrm).Result;]]>
+            </Code>
+        </Snippet>
+    </CodeSnippet>
+    <CodeSnippet Format="1.0.0">
+        <Header>
+            <Title>Get the response from the Trending API</Title>
+            <Description>Get the response from the Trending API and put the array of trending objects into a JToken. </Description>
+            <Shortcut>_4_GetTrendingResponse</Shortcut>
+        </Header>
+        <Snippet>
+            <Code Language="CSharp">
+                <![CDATA[// 4. Get the trending response.
+var content = response.Content.ReadAsStringAsync().Result;
+JObject trendingResponseBody = JObject.Parse(content);
+
+// 4. Get the array of trending objects from the 'value' key.
+JToken arrayOfTrendingObjects = trendingResponseBody.GetValue("value");]]>
+            </Code>
+        </Snippet>
+    </CodeSnippet>
+    <CodeSnippet Format="1.0.0">
+        <Header>
+            <Title>Get a list of Trending objects</Title>
+            <Description>Use the serializer on the HttpProvider to deserialize each trending object.</Description>
+            <Shortcut>_5_GetTrendingObjects</Shortcut>
+        </Header>
+        <Snippet>
+            <Code Language="CSharp">
+                <![CDATA[// 5. Get a list of Trending objects.
+List<GraphBetaModels.Microsoft.Graph.Trending> trendingList = new List<GraphBetaModels.Microsoft.Graph.Trending>();
+
+// 5. Deserialize each trending object.
+foreach (JToken t in arrayOfTrendingObjects.Children())
+{
+    GraphBetaModels.Microsoft.Graph.Trending trendingObj = graphClient.HttpProvider
+                                                                        .Serializer
+                                                                        .DeserializeObject<GraphBetaModels.Microsoft.Graph.Trending>(t.ToString());
+    trendingList.Add(trendingObj);
+}]]>
+            </Code>
+        </Snippet>
+    </CodeSnippet>
+    <CodeSnippet Format="1.0.0">
+        <Header>
+            <Title>Show the contents of the Trending objects</Title>
+            <Description>Access the contents of each of the Trending objects returned in the response.</Description>
+            <Shortcut>_6_ShowTrendingInformation</Shortcut>
+        </Header>
+        <Snippet>
+            <Code Language="CSharp">
+                <![CDATA[// 6. Access the contents of the trending objects from the model.
+foreach (GraphBetaModels.Microsoft.Graph.Trending trendingItem in trendingList)
+{
+    Console.WriteLine($"Trending id: {trendingItem.Id}");
+    Console.WriteLine($"Trending resource title: {trendingItem.ResourceVisualization.Title}");
+    Console.WriteLine($"Trending resource preview text: {trendingItem.ResourceVisualization.PreviewText}");
+    Console.WriteLine($"Trending resource web url: {trendingItem.ResourceReference.WebUrl}\n");
+}]]>
+            </Code>
+        </Snippet>
+    </CodeSnippet>
+</CodeSnippets>
